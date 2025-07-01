@@ -1,22 +1,26 @@
 
+import { db } from '../db';
+import { imagesTable } from '../db/schema';
 import { type GetImageInput, type Image } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export const getImage = async (input: GetImageInput): Promise<Image> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to fetch a single image by ID from the database.
-    // In real implementation, this would:
-    // 1. Query the images table for the specific image ID
-    // 2. Throw an error if image not found
-    // 3. Return the image record
-    return Promise.resolve({
-        id: input.id,
-        filename: 'placeholder.jpg',
-        original_name: 'placeholder.jpg',
-        file_path: '/uploads/placeholder.jpg',
-        file_size: 1024,
-        mime_type: 'image/jpeg',
-        width: 800,
-        height: 600,
-        uploaded_at: new Date()
-    } as Image);
+  try {
+    // Query the images table for the specific image ID
+    const results = await db.select()
+      .from(imagesTable)
+      .where(eq(imagesTable.id, input.id))
+      .execute();
+
+    // Check if image was found
+    if (results.length === 0) {
+      throw new Error(`Image with ID ${input.id} not found`);
+    }
+
+    // Return the image record (no numeric conversions needed for this schema)
+    return results[0];
+  } catch (error) {
+    console.error('Get image failed:', error);
+    throw error;
+  }
 };

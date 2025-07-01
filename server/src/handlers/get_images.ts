@@ -1,12 +1,19 @@
 
+import { db } from '../db';
+import { imagesTable } from '../db/schema';
 import { type Image } from '../schema';
+import { desc } from 'drizzle-orm';
 
 export const getImages = async (): Promise<Image[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to fetch all images from the database for gallery display.
-    // In real implementation, this would:
-    // 1. Query the images table to get all image records
-    // 2. Order by uploaded_at descending (newest first)
-    // 3. Return the array of image records
-    return Promise.resolve([]);
+  try {
+    const results = await db.select()
+      .from(imagesTable)
+      .orderBy(desc(imagesTable.uploaded_at))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch images:', error);
+    throw error;
+  }
 };
